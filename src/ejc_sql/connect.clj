@@ -23,7 +23,7 @@
             [clomacs :refer [clomacs-defn]]
             [ejc-sql.output :as o]
             [ejc-sql.lib :refer [select? ddl? clob-to-string-row *max-column-width*]]
-            [ejc-sql.cache :refer [invalidate-cache]])
+            [ejc-sql.cache :as cache])
   (:import [java.sql SQLException]))
 
 (def db
@@ -32,7 +32,9 @@ For debug purpose."
   (atom nil))
 
 (defn set-db [ejc-db]
-  (reset! db ejc-db))
+  (reset! db ejc-db)
+  ;; Try to load cached data when connection is established
+  (cache/load-cache-from-file! ejc-db))
 
 (def current-query
   "Current running query data."
@@ -201,7 +203,7 @@ SELECT * FROM urls WHERE path like '%http://localhost%'"
                                   (str "Records affected: " result)
                                   "Executed")]
                     (when (ddl? sql)
-                      (invalidate-cache db))
+                      (cache/invalidate-cache db))
                     (list :message message))))
               sql-list)))
     (catch SQLException e

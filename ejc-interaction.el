@@ -293,6 +293,29 @@ Print all connections cache otherwise."
   (interactive)
   (pprint (ejc-output-cache ejc-db)))
 
+(clomacs-defun ejc-set-cache-dir
+               set-cache-dir
+               :lib-name "ejc-sql"
+               :namespace ejc-sql.cache
+               :doc "Set directory for cache files.")
+
+(clomacs-defun ejc-load-cache-from-file
+               load-cache-from-file
+               :lib-name "ejc-sql"
+               :namespace ejc-sql.cache
+               :return-type :boolean)
+
+(clomacs-defun ejc-delete-cache-file
+               delete-cache-file
+               :lib-name "ejc-sql"
+               :namespace ejc-sql.cache
+               :return-type :boolean)
+
+(defun ejc-set-cache-directory (dir)
+  "Set directory for ejc-sql cache files."
+  (interactive "DCache directory: ")
+  (ejc-set-cache-dir (expand-file-name dir)))
+
 (clomacs-defun ejc-select-db-meta-script
                select-db-meta-script
                :lib-name "ejc-sql"

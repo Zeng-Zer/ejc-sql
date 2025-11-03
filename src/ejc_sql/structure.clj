@@ -712,6 +712,8 @@
                                           (sort result)
                                           result)]
                              (deliver c-promise :ok)
+                             ;; Auto-save cache when ready
+                             (ejc-sql.cache/save-cache-when-ready! db)
                              result)
                            (catch Exception e
                              (deliver c-promise e)
