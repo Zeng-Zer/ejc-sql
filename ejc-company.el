@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;;; ejc-company.el -- SQL completitions at point by company-mode (the part of ejc-sql).
 
 ;;; Copyright © 2020 - Kostafey <kostafey@gmail.com>

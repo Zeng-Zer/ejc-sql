@@ -494,7 +494,50 @@
                       FROM   pg_catalog.pg_proc p
                       WHERE  p.proname = '%s'" entity-name))
          :keywords (fn [& _]
-                     "SELECT word FROM pg_get_keywords()")}]
+                     "SELECT word FROM pg_get_keywords()")}
+        ;;--------
+        trino
+        ;;--------
+        {:owners (fn [& _] "
+           SELECT schema_owner
+           FROM information_schema.schemata ")
+         :schemas (fn [& _] "
+             SELECT schema_name
+             FROM information_schema.schemata ")
+         :tables  (fn [& {:keys [schema]}]
+                    (format "
+                SELECT table_name
+                FROM information_schema.tables
+                %s
+                ORDER BY table_name "
+                            (if schema
+                              (format " WHERE table_schema = '%s'" schema)
+                              "")))
+         :views   (fn [& _] "
+            SELECT table_name
+            FROM information_schema.views ")
+         :all-tables (fn [& _] "
+              SELECT s.schema_owner, s.schema_name, t.table_name
+              FROM information_schema.schemata AS s,
+                   information_schema.tables AS t
+              WHERE t.table_schema = s.schema_name ")
+         :columns (fn [& {:keys [table]}]
+                    (format "
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE UPPER(table_name) = '%s'
+                ORDER BY column_name "
+                            (s/upper-case table)))
+         :view    (fn [& {:keys [entity-name]}]
+                    (format "
+                SELECT view_definition
+                FROM information_schema.views
+                WHERE UPPER(table_name) = '%s' "
+                            (s/upper-case entity-name)))
+         :keywords (fn [& _] "
+               SELECT keyword_name
+               FROM system.metadata.keywords")}]
+
     {:oracle oracle
      :informix informix
      :mysql mysql
@@ -502,7 +545,8 @@
      :h2 h2
      :sqlite sqlite
      :sqlserver sqlserver
-     :postgresql postgresql}))
+     :postgresql postgresql
+     :trino trino}))
 
 (defn get-db-name [db]
   (let [{:keys [database subname connection-uri dbname]} db]
