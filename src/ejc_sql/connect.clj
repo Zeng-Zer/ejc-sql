@@ -34,7 +34,8 @@ For debug purpose."
 (defn set-db [ejc-db]
   (reset! db ejc-db)
   ;; Try to load cached data when connection is established
-  (cache/load-cache-from-file! ejc-db))
+  (when ejc-db
+    (cache/load-cache-from-file! ejc-db)))
 
 (def current-query
   "Current running query data."

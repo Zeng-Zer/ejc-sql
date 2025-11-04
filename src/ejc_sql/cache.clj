@@ -61,25 +61,26 @@
   "Generate a unique fingerprint for a database connection.
    Uses connection details to create a stable identifier."
   [db]
-  (let [{:keys [subprotocol subname connection-uri dbname user host port]} db]
-    (s/join "_"
-            (remove nil?
-                    [(or subprotocol "unknown")
-                     (or dbname "unknown")
-                     (or user "unknown")
-                     (or host "unknown")
-                     (or port "unknown")
-                     (when subname
-                       (-> subname
-                           (s/split #"/" -1)
-                           last
-                           (s/split #"\?" 2)
-                           first))]))))
+  (when db
+    (let [{:keys [subprotocol subname connection-uri dbname user host port]} db]
+      (s/join "_"
+              (remove nil?
+                      [(or subprotocol "unknown")
+                       (or dbname "unknown")
+                       (or user "unknown")
+                       (or host "unknown")
+                       (or port "unknown")
+                       (when subname
+                         (-> subname
+                             (s/split #"/" -1)
+                             last
+                             (s/split #"\?" 2)
+                             first))])))))
 
 (defn get-cache-file-path
   "Get the file path for a connection's cache file."
   [db]
-  (let [fingerprint (get-connection-fingerprint db)]
+  (when-let [fingerprint (get-connection-fingerprint db)]
     (io/file *cache-dir* (str fingerprint ".edn"))))
 
 (defn resolve-cache-futures
@@ -116,7 +117,7 @@
   [db]
   (try
     (when-let [cache-data (prepare-cache-for-saving db)]
-      (let [cache-file (get-cache-file-path db)]
+      (when-let [cache-file (get-cache-file-path db)]
         (io/make-parents cache-file)
         (spit cache-file (pr-str cache-data))
         true))
@@ -128,7 +129,7 @@
   "Load the cache for a specific database connection from file."
   [db]
   (try
-    (let [cache-file (get-cache-file-path db)]
+    (when-let [cache-file (get-cache-file-path db)]
       (when (.exists cache-file)
         (let [cache-data (edn/read-string (slurp cache-file))]
           (when (map? cache-data)
@@ -142,7 +143,7 @@
   "Delete the cache file for a specific database connection."
   [db]
   (try
-    (let [cache-file (get-cache-file-path db)]
+    (when-let [cache-file (get-cache-file-path db)]
       (when (.exists cache-file)
         (.delete cache-file)
         true))
