@@ -101,8 +101,10 @@ function. If the user waits for autocompletion and doesn't move point
 (cursor) during this process, he will get autocompletion variants."
   (switch-to-buffer buffer-name)
   (if (equal point (point))
-      (cond ((bound-and-true-p auto-complete-mode) (auto-complete))
-            ((bound-and-true-p company-mode) (company-complete))))
+      (cond
+       ((bound-and-true-p auto-complete-mode) (auto-complete))
+       ((bound-and-true-p company-mode) (company-complete))
+       ((bound-and-true-p corfu-mode) (completion-at-point))))
   nil)
 
 (defmacro ejc-candidates (cand-fn)
@@ -157,8 +159,12 @@ function. If the user waits for autocompletion and doesn't move point
 (defun ejc-dot-pressed ()
   (interactive)
   (insert ".")
-  (if (and ejc-complete-on-dot (bound-and-true-p company-mode))
-      (call-interactively 'company-complete)))
+  (when ejc-complete-on-dot
+    (cond
+     ((bound-and-true-p company-mode)
+      (call-interactively 'company-complete))
+     ((bound-and-true-p corfu-mode)
+      (completion-at-point)))))
 
 (provide 'ejc-completion-common)
 

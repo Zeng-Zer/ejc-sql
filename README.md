@@ -22,6 +22,7 @@ formatting of SQL scripts are also available.
   - [Autocomplete](#autocomplete)
   - [Fuzzy matching](#fuzzy-matching)
   - [Company mode](#company-mode)
+  - [Corfu mode](#corfu-mode)
   - [Minibuffer completion](#minibuffer-completion)
   - [ElDoc](#eldoc)
   - [Performance & output customization](#performance-output-customization)
@@ -181,6 +182,42 @@ To activate `company-quickhelp` add the following to your `.emacs`:
 
 ```lisp
 (company-quickhelp-mode)
+```
+
+### Corfu mode
+
+Install `corfu` e.g. by the following command:
+<kbd>M-x package-install [RET] corfu [RET]</kbd>
+
+Enable `corfu` completion frontend for `ejc-sql` minor mode:
+
+```lisp
+(require 'corfu)
+(require 'ejc-corfu)
+
+;; Enable automatic completion popup
+(setq corfu-auto t)
+(setq corfu-auto-prefix 1)  ; Show after 1 character
+(setq corfu-auto-delay 0.1) ; Minimal delay
+
+;; Enable dot completion (works even if corfu-auto is disabled)
+(setq ejc-complete-on-dot t)
+
+;; Setup Corfu for ejc-sql
+(add-hook 'ejc-sql-minor-mode-hook #'ejc-corfu-setup)
+
+;; Enable Corfu in sql-mode buffers
+(add-hook 'sql-mode-hook #'corfu-mode)
+```
+
+Corfu uses Emacs's native `completion-at-point-functions` (CAPF), providing a
+lightweight and modern completion experience. It integrates seamlessly with
+Vertico for minibuffer completion.
+
+To show documentation in a popup, you can enable `corfu-popupinfo`:
+
+```lisp
+(corfu-popupinfo-mode)
 ```
 
 <a id="minibuffer-completion"></a>
