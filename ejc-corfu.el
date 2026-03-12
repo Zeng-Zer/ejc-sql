@@ -39,7 +39,7 @@
 
 (defun ejc-corfu--make-candidate (candidate)
   "Create a completion candidate with metadata.
-CANDIDATE is a cons cell (TEXT . META)."
+CANDIDATE is a list (TEXT META)."
   (let ((text (car candidate))
         (meta (cadr candidate)))
     (propertize text 'meta meta)))
@@ -97,16 +97,6 @@ Shows the type of completion (keyword, table, column, etc.)."
         (goto-char (point-min))
         (current-buffer)))))
 
-(defun ejc-corfu--doc-from-meta (candidate)
-  "Return documentation for CANDIDATE using its meta property."
-  (let ((meta (get-text-property 0 'meta candidate)))
-    (when meta
-      (with-current-buffer (get-buffer-create "*corfu-doc*")
-        (erase-buffer)
-        (insert meta)
-        (goto-char (point-min))
-        (current-buffer)))))
-
 ;;;###autoload
 (defun ejc-corfu-capf ()
   "Completion at point function (CAPF) for Corfu.
@@ -119,7 +109,7 @@ Returns a tuple compatible with `completion-at-point-functions'."
               (ejc-corfu--candidates prefix)
               :annotation-function #'ejc-corfu--annotation
               :company-doc-buffer #'ejc-corfu--doc-buffer
-              :company-meta (lambda (cand) (get-text-property 0 'meta cand))))))
+              :company-meta (lambda (cand) (get-text-property 0 'meta cand)))))))
 
 ;;;###autoload
 (defun ejc-corfu-setup ()
